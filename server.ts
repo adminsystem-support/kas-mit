@@ -300,7 +300,8 @@ async function ensureDBSynced(force = false) {
           const loadedTx = Array.isArray(txData.transactions) ? txData.transactions : [];
 
           if (loadedStudents.length > 0 || loadedTx.length > 0) {
-            const finalTx = loadedTx.length > 0 ? loadedTx : (dbCache?.transactions || []);
+            const localTx = dbCache?.transactions || [];
+            const finalTx = (localTx.length > loadedTx.length) ? localTx : (loadedTx.length > 0 ? loadedTx : localTx);
             const fetched = sanitizeIuranData({
               students: loadedStudents.length > 0 ? loadedStudents : (dbCache?.students || []),
               transactions: finalTx,
