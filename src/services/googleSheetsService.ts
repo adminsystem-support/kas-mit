@@ -75,12 +75,15 @@ export const signInWithGoogleSheets = async (): Promise<{ user: User; accessToke
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {
     console.error("Google Sign-In error:", error);
+    const msg = String(error?.message || "");
     if (error.code === "auth/popup-blocked") {
       throw new Error("Jendela pop-up Google Login diblokir oleh browser. Harap izinkan pop-up (Allow Pop-ups) di browser HP/Laptop Anda lalu klik tombol login kembali.");
-    } else if (error.code === "auth/popup-closed-by-user") {
-      throw new Error("Jendela otorisasi Google ditutup sebelum proses masuk selesai. Silakan klik tombol login kembali.");
+    } else if (error.code === "auth/popup-closed-by-user" || msg.includes("popup-closed-by-user")) {
+      throw new Error("Jendela otorisasi Google ditutup. Jika muncul 'Akses diblokir (Error 403: access_denied)', Google Cloud Console Anda saat ini berstatus Testing. Silakan tambahkan email Anda ke daftar Test Users di Google Cloud Console, atau gunakan tombol 'Unduh Rekap Kas (.CSV)' di atas untuk membuka data kas secara instan di Google Sheets.");
     } else if (error.code === "auth/unauthorized-domain") {
       throw new Error(`Domain '${window.location.hostname}' belum terdaftar di Authorized Domains Firebase. Silakan gunakan tombol 'Unduh Rekap Kas (.CSV)' di bawah untuk langsung membuka seluruh data kas di Google Sheets.`);
+    } else if (msg.includes("403") || msg.includes("access_denied") || msg.includes("penguji") || msg.includes("verification")) {
+      throw new Error("Akses diblokir (Error 403: access_denied). Status OAuth project Google Cloud Anda berstatus 'Testing'. Silakan tambahkan email Anda ke daftar 'Test users' di Google Cloud Console OAuth Consent Screen, atau gunakan tombol 'Unduh Rekap Kas (.CSV)'.");
     }
     throw new Error(error?.message || "Gagal masuk dengan Google. Pastikan koneksi internet stabil dan pop-up diizinkan.");
   } finally {
