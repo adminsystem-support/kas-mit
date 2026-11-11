@@ -1,0 +1,137 @@
+{
+  "entities": {
+    "students": {
+      "title": "Students",
+      "description": "Student roster and parent credentials",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "parentName": { "type": "string" },
+        "parentNickname": { "type": "string" },
+        "parentPassword": { "type": "string" },
+        "activeDeviceId": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["name", "parentName", "parentNickname"]
+    },
+    "transactions": {
+      "title": "Transactions",
+      "description": "Class cash flow income and expenditure ledger",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE"] },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "proofUrl": { "type": "string" },
+        "studentName": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["type", "amount", "date", "description"]
+    },
+    "kasbonRequests": {
+      "title": "Kasbon Requests",
+      "description": "Cash advance requests from parents",
+      "type": "object",
+      "properties": {
+        "parentName": { "type": "string" },
+        "studentName": { "type": "string" },
+        "amount": { "type": "number" },
+        "purpose": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "proofUrl": { "type": "string" }
+      },
+      "required": ["parentName", "amount", "purpose", "date", "status"]
+    },
+    "rembesRequests": {
+      "title": "Reimbursement Requests",
+      "description": "Reimbursement requests from parents",
+      "type": "object",
+      "properties": {
+        "parentName": { "type": "string" },
+        "studentName": { "type": "string" },
+        "amount": { "type": "number" },
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "proofUrl": { "type": "string" }
+      },
+      "required": ["parentName", "amount", "title", "date", "status"]
+    },
+    "studentRecords": {
+      "title": "Student Growth Records",
+      "description": "Child growth, height, weight and Quran progress records",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "height": { "type": "number" },
+        "weight": { "type": "number" },
+        "attendance": { "type": "number" },
+        "quranLevel": { "type": "string" },
+        "notes": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["studentId", "date"]
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "App settings including active bendahara device lock",
+      "type": "object",
+      "properties": {
+        "activeBendaharaDeviceId": { "type": "string" },
+        "bankInfo": { "type": "string" },
+        "targetIuran": { "type": "number font" },
+        "theme": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "students": {
+      "path": "students/{studentId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "transactions": {
+      "path": "transactions/{transactionId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "kasbonRequests": {
+      "path": "kasbonRequests/{requestId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "rembesRequests": {
+      "path": "rembesRequests/{requestId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "studentRecords": {
+      "path": "studentRecords/{recordId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "settings": {
+      "path": "settings/{settingId}",
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    }
+  }
+}
