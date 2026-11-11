@@ -202,20 +202,6 @@ function sanitizeIuranData(db: any) {
         });
       }
     });
-
-    const hasOctTx = db.transactions.some((tx: any) => 
-      tx.type === "IN" && 
-      (tx.date?.startsWith("2026-10") || (tx.description && tx.description.includes("Oktober 2026")))
-    );
-    if (!hasOctTx) {
-      db.students.forEach((s: any) => {
-        const oct = (s.iuranStatus || []).find((i: any) => i.month === "Oktober 2026");
-        if (oct) {
-          oct.paid = false;
-          delete oct.paidAt;
-        }
-      });
-    }
   }
 
   return sanitizeAssetData(db);
