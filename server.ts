@@ -261,8 +261,8 @@ function sanitizeAssetData(db: any) {
 
 function mergeTransactions(localTxs: any[], cloudTxs: any[]) {
   const map = new Map<string, any>();
-  (localTxs || []).forEach(t => { if (t && t.id) map.set(t.id, t); });
   (cloudTxs || []).forEach(t => { if (t && t.id) map.set(t.id, t); });
+  (localTxs || []).forEach(t => { if (t && t.id) map.set(t.id, t); });
   return Array.from(map.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
 
@@ -301,10 +301,10 @@ async function ensureDBSynced(force = false) {
 
           if (loadedStudents.length > 0 || loadedTx.length > 0) {
             const localTx = dbCache?.transactions || [];
-            const finalTx = (localTx.length > loadedTx.length) ? localTx : (loadedTx.length > 0 ? loadedTx : localTx);
+            const mergedTx = mergeTransactions(localTx, loadedTx);
             const fetched = sanitizeIuranData({
               students: loadedStudents.length > 0 ? loadedStudents : (dbCache?.students || []),
-              transactions: finalTx,
+              transactions: mergedTx.length > 0 ? mergedTx : (localTx.length > 0 ? localTx : loadedTx),
               kasbons: extrasData.kasbons || (dbCache?.kasbons || []),
               reimbursements: extrasData.reimbursements || (dbCache?.reimbursements || []),
               iuranConfirmations: extrasData.iuranConfirmations || (dbCache?.iuranConfirmations || []),
