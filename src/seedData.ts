@@ -269,16 +269,14 @@ export const INITIAL_SEED_DATA: DBState = {
           "paid": false
         },
         {
-          "paidAt": "2026-10-28",
-          "paid": true,
+          "paid": false,
           "amount": 20000,
           "month": "November 2026"
         },
         {
           "month": "Desember 2026",
           "amount": 20000,
-          "paidAt": "2026-10-28",
-          "paid": true
+          "paid": false
         },
         {
           "paid": false,
@@ -485,10 +483,9 @@ export const INITIAL_SEED_DATA: DBState = {
           "paid": false
         },
         {
-          "paidAt": "2026-10-02",
-          "paid": true,
-          "month": "November 2026",
-          "amount": 20000
+          "paid": false,
+          "amount": 20000,
+          "month": "November 2026"
         },
         {
           "amount": 20000,

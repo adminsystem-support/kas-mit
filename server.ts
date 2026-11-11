@@ -104,29 +104,18 @@ function sanitizeIuranData(db: any) {
     "Juli 2027", "Agustus 2027", "September 2027", "Oktober 2027", "November 2027", "Desember 2027"
   ];
 
+  // 1. Initialize every student's iuranStatus with all 18 standard months (Juli 2026 - Desember 2027) set to unpaid
+  // The paid status is authoritatively reconstructed from active 'IN' transactions below,
+  // ensuring that deleting or editing a transaction immediately unchecks the corresponding months.
   db.students.forEach((student: any) => {
-    if (!Array.isArray(student.iuranStatus)) {
-      student.iuranStatus = defaultMonths.map(m => ({ month: m, paid: false, amount: 20000 }));
-    } else {
-      // 1. Remove invalid months prior to July 2026
-      student.iuranStatus = student.iuranStatus.filter((item: any) => !invalidMonths.includes(item.month));
-      
-      // 2. Set amount to 20000
-      student.iuranStatus.forEach((item: any) => {
-        item.amount = 20000;
-      });
-
-      // 3. Ensure July 2026 - Dec 2027 are included
-      defaultMonths.forEach((m) => {
-        const exists = student.iuranStatus.some((i: any) => i.month === m);
-        if (!exists) {
-          student.iuranStatus.push({ month: m, paid: false, amount: 20000 });
-        }
-      });
-    }
+    student.iuranStatus = defaultMonths.map((m: string) => ({
+      month: m,
+      paid: false,
+      amount: 20000
+    }));
   });
 
-  // Ensure transactions accurately link to students and update student.iuranStatus
+  // 2. Ensure transactions accurately link to students and update student.iuranStatus
   if (Array.isArray(db.transactions) && Array.isArray(db.students)) {
     db.transactions.forEach((tx: any) => {
       let targetStudent: any = null;
@@ -1304,6 +1293,8 @@ const handleEditTransaction = async (req: any, res: any) => {
     if (proofImage !== undefined) tx.proofImage = proofImage;
     if (isGeneratedNota !== undefined) tx.isGeneratedNota = Boolean(isGeneratedNota);
 
+    db = sanitizeIuranData(db);
+
     try {
       await writeDB(db);
     } catch (writeErr) {
@@ -1345,6 +1336,8 @@ const handleDeleteTransactionRoute = async (req: any, res: any) => {
       return res.status(404).json({ error: "Transaksi tidak ditemukan (ID: " + id + ")" });
     }
     db.transactions.splice(index, 1);
+    db = sanitizeIuranData(db);
+
     try {
       await writeDB(db);
     } catch (writeErr) {
