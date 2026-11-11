@@ -1,7 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, setDoc } = require('firebase/firestore');
 
 const csvPath = path.resolve(__dirname, '../public/assets/aistudio/buku-kas-kelas-1c-2026-11-11__1__205be63d.csv');
 const dbPath = path.resolve(__dirname, '../db.json');
@@ -15,9 +13,9 @@ function parseCSVLine(line) {
   let inQuotes = false;
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    if (char === '\"') {
-      if (inQuotes && line[i+1] === '\"') {
-        cur += '\"';
+    if (char === '"') {
+      if (inQuotes && line[i+1] === '"') {
+        cur += '"';
         i++;
       } else {
         inQuotes = !inQuotes;
@@ -125,48 +123,3 @@ db.transactions.forEach(tx => {
 // Save to db.json
 fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf-8');
 console.log('Restored all 97 transactions (including 16 in Oct 2026) to db.json!');
-
-// Sync to Cloud Firestore
-const FIRESTORE_CLOUD_CONFIG = {
-  projectId: "smart-league-czp2g",
-  appId: "1:401246954965:web:294bca30e0c5cfaf48c95c",
-  apiKey: "AIzaSyBOEnYHenHp8emJTkDq98V-k1q7mIHvi6Q",
-  authDomain: "smart-league-czp2g.firebaseapp.com",
-  firestoreDatabaseId: "ai-studio-kaskelas1c-b57958dd-6772-4270-abe8-5fe7f2bcfd85",
-  storageBucket: "smart-league-czp2g.firebasestorage.app",
-  messagingSenderId: "401246954965"
-};
-
-async function syncFirestore() {
-  try {
-    const fbApp = initializeApp(FIRESTORE_CLOUD_CONFIG, "restore-oct-app");
-    const firestoreDb = getFirestore(fbApp, FIRESTORE_CLOUD_CONFIG.firestoreDatabaseId);
-
-    await Promise.all([
-      setDoc(doc(firestoreDb, "appData", "students"), {
-        students: db.students || []
-      }),
-      setDoc(doc(firestoreDb, "appData", "transactions"), {
-        transactions: db.transactions || []
-      }),
-      setDoc(doc(firestoreDb, "appData", "financeExtras"), {
-        kasbons: db.kasbons || [],
-        reimbursements: db.reimbursements || [],
-        iuranConfirmations: db.iuranConfirmations || [],
-        assets: db.assets || []
-      }),
-      setDoc(doc(firestoreDb, "appData", "settings"), {
-        settings: db.settings || {},
-        updatedAt: new Date().toISOString()
-      })
-    ]);
-
-    console.log("Successfully restored and pushed all 97 transactions to Cloud Firestore!");
-    process.exit(0);
-  } catch (err) {
-    console.error("Error pushing to Firestore:", err);
-    process.exit(1);
-  }
-}
-
-syncFirestore();
